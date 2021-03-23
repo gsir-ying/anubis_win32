@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <xs:schema elementFormDefault="qualified" targetNamespace="https://software.pecny.cz/anubis" version="1.2" xmlns="https://software.pecny.cz/anubis" xml:lang="en" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2">
+   <xs:import namespace="http://www.opengis.net/gml/3.2" schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+   <xs:attributeGroup name="system_attributes">
+     <xs:attribute name="type" type="sat_type"/>
+     <xs:attribute name="nsat" type="xs:int"/>
+     <xs:attribute name="xele" type="xs:int"/>
+   </xs:attributeGroup>
+   <xs:simpleType name="obs_type">
+     <xs:restriction base="xs:token">
+       <xs:pattern value="([C|L|D|S][0-8][A-Z]|[C|L|P|D|S][0-8])"/>
+     </xs:restriction>
+   </xs:simpleType>
+     <xs:attributeGroup name="obs_attr">
+       <xs:attribute name="type" type="obs_type"/>
+     </xs:attributeGroup>
+     <xs:simpleType name='sat_type'>
+       <xs:restriction base="xs:string">
+         <xs:enumeration value="GPS"/>
+         <xs:enumeration value="GNS"/>
+         <xs:enumeration value="GLO"/>
+         <xs:enumeration value="GAL"/>
+         <xs:enumeration value="BDS"/>
+         <xs:enumeration value="QZS"/>
+         <xs:enumeration value="SBS"/>
+         <xs:enumeration value="IRN"/>
+       </xs:restriction>
+     </xs:simpleType>
+     <xs:simpleType name='bnd_type'>
+       <xs:restriction base="xs:string">
+         <xs:enumeration value="code"/>
+         <xs:enumeration value="phase"/>
+       </xs:restriction>
+     </xs:simpleType>
+     <xs:complexType name='system_base'>
+       <xs:attributeGroup ref="system_attributes"/>
+     </xs:complexType>
+		  
+     <xs:simpleType name='na_int'> 
+       <xs:union>
+         <xs:simpleType> 
+           <xs:restriction base="xs:integer"/>
+         </xs:simpleType> 
+         <xs:simpleType> 
+           <xs:restriction base="xs:string"> 
+             <xs:enumeration value="n/a"/> 
+           </xs:restriction>
+         </xs:simpleType>
+       </xs:union> 
+     </xs:simpleType>
+     <xs:simpleType name='na_double'> 
+       <xs:union> 
+         <xs:simpleType> 
+           <xs:restriction base="xs:double"/> 
+         </xs:simpleType> 
+         <xs:simpleType> 
+           <xs:restriction base="xs:string"> 
+	           <xs:enumeration value="n/a"/> 
+           </xs:restriction>
+         </xs:simpleType>
+       </xs:union> 
+     </xs:simpleType>
+     <xs:complexType name='coordinate_point'>
+       <xs:sequence>
+         <xs:element ref="gml:Point"/>
+       </xs:sequence>
+     </xs:complexType>
+     <xs:complexType name='coordinate_axis'>
+       <xs:sequence>
+         <xs:element name="axis" maxOccurs='3' minOccurs='1'>
+           <xs:complexType>
+             <xs:simpleContent>
+               <xs:extension base="xs:decimal">
+                 <xs:attribute name="name" type="xs:string"/>
+               </xs:extension>
+             </xs:simpleContent>
+           </xs:complexType>
+         </xs:element>
+       </xs:sequence>
+     </xs:complexType>
+     <xs:complexType name='position_coordinate'>
+       <xs:sequence>
+         <xs:element name="coordinate"   type='coordinate_point'/>
+         <xs:element name="eccentricity" type='coordinate_axis' minOccurs='0'/>
+         <xs:element name="deviation"    type='coordinate_axis' minOccurs='0'/>
+       </xs:sequence>
+       <xs:attribute name="source" type="xs:string"> </xs:attribute>
+       <xs:attribute name="type"   type="xs:string"> </xs:attribute>
+     </xs:complexType>
+     <xs:element name="QC_GNSS" substitutionGroup="gml:AbstractFeature">
+       <xs:complexType>
+         <xs:complexContent>
+           <xs:extension base="gml:AbstractFeatureType">
+             <xs:sequence>
+               <xs:element name="meta">
+                 <xs:complexType>
+                   <xs:sequence>
+                     <xs:element name="created" type="xs:dateTime"></xs:element>
+                     <xs:element name="program" type="xs:string"></xs:element>
+                     <xs:element name="settings">
+                       <xs:complexType>
+                         <xs:sequence>
+                           <xs:element name="time_beg" type="xs:dateTime"> </xs:element>
+                           <xs:element name="time_end" type="xs:dateTime"> </xs:element>
+                           <xs:element name="data_int" type="xs:decimal">  </xs:element>
+                           <xs:element name="elev_min" type="xs:decimal">  </xs:element>
+                           <xs:element name="system" maxOccurs="unbounded" type="system_base"/>
+                         </xs:sequence>
+                       </xs:complexType>
+                     </xs:element>
+                   </xs:sequence>
+                 </xs:complexType>
+               </xs:element>
+               <xs:element name="navi">
+                 <xs:complexType>
+                   <xs:sequence>
+                     <xs:element name="system" maxOccurs="unbounded">
+                       <xs:complexType>
+                         <xs:complexContent>
+                           <xs:extension base="system_base">
+                             <xs:sequence>
+                               <xs:element name="have" type="xs:int"> </xs:element>
+                             </xs:sequence>
+                           </xs:extension>
+                         </xs:complexContent>
+                       </xs:complexType>
+                     </xs:element>
+                   </xs:sequence>
+                 </xs:complexType>
+               </xs:element>
+               <xs:element name="data">
+                 <xs:complexType>
+                   <xs:sequence>
+                     <xs:element name="time_beg" type="xs:dateTime"> </xs:element>
+                     <xs:element name="time_end" type="xs:dateTime"> </xs:element>
+                     <xs:element name="data_int" type="xs:decimal">  </xs:element>
+                     <xs:element name="numb_epo" type="xs:int">      </xs:element>
+                     <xs:element name="numb_gap" type="xs:int">      </xs:element>
+                     <xs:element name="total">
+                       <xs:complexType>
+                         <xs:sequence>
+                           <xs:element name="expt" type="xs:int">         </xs:element>
+                           <xs:element name="have" type="xs:int">         </xs:element>
+                           <xs:element name="expt_usr" type="xs:int">     </xs:element>
+                           <xs:element name="have_usr" type="xs:int">     </xs:element>
+                           <xs:element name="elev_min" type="xs:decimal"> </xs:element>
+                           <xs:element name="cyc_slps" type="xs:int">     </xs:element>
+                           <xs:element name="clk_jmps" type="xs:int">     </xs:element>
+                         </xs:sequence>
+                       </xs:complexType>
+                     </xs:element>
+                     <xs:element name="excluded">
+                       <xs:complexType>
+                         <xs:sequence>
+                           <xs:element name="xbeg" type="xs:int"> </xs:element>
+                           <xs:element name="xend" type="xs:int"> </xs:element>
+                           <xs:element name="xint" type="xs:int"> </xs:element>
+                           <xs:element name="xsys" type="xs:int"> </xs:element>
+                         </xs:sequence>
+                       </xs:complexType>
+                     </xs:element>
+                     <xs:element name="system" maxOccurs="unbounded">
+                       <xs:complexType>
+                         <xs:complexContent>
+                           <xs:extension base="system_base">
+                             <xs:sequence>
+                               <xs:element name="epo">
+                                 <xs:complexType>
+                                   <xs:sequence>
+                                     <xs:element name="expt" type="xs:int"> </xs:element>
+                                     <xs:element name="have" type="xs:int"> </xs:element>
+                                     <xs:element name="dual" type="xs:int"> </xs:element>
+                                   </xs:sequence>
+                                 </xs:complexType>
+                               </xs:element>
+                               <xs:element name="amb">
+                                 <xs:complexType>
+                                   <xs:sequence>
+                                     <xs:element name="nepo" type="xs:int">  </xs:element>
+                                     <xs:element name="nsat" type="xs:int">  </xs:element>
+                                     <xs:element name="nsig" type="xs:int">  </xs:element>
+                                     <xs:element name="nslp" type="xs:int">  </xs:element>
+                                   </xs:sequence>
+                                 </xs:complexType>
+                               </xs:element>
+                               <xs:element name="bnd" maxOccurs="unbounded">
+                                 <xs:complexType>
+                                   <xs:sequence>
+                                     <xs:element name="xepo" type="xs:int">    </xs:element>
+                                     <xs:element name="xsat" type="xs:int">    </xs:element>
+                                   </xs:sequence>
+                                   <xs:attribute name="type" type="bnd_type">  </xs:attribute>
+                                 </xs:complexType>
+                               </xs:element>
+                               <xs:element name="obs" maxOccurs="unbounded">
+                                 <xs:complexType>
+                                   <xs:sequence>
+                                     <xs:element name="nsat" type="xs:int">     </xs:element>
+                                     <xs:element name="expt" type="na_int">     </xs:element>
+                                     <xs:element name="have" type="xs:int">     </xs:element>
+                                     <xs:element name="expt_usr" type="na_int"> </xs:element>
+                                     <xs:element name="have_usr" type="xs:int"> </xs:element>
+                                     <xs:element name="mpth" type="na_double" maxOccurs='1' minOccurs='0'> </xs:element>
+                                     <xs:element name="slps" type="na_double" maxOccurs='1' minOccurs='0'> </xs:element>
+                                   </xs:sequence>
+                                   <xs:attributeGroup ref="obs_attr"/>
+                                 </xs:complexType>
+                               </xs:element>
+                             </xs:sequence>
+                           </xs:extension>
+                         </xs:complexContent>
+                       </xs:complexType>
+                     </xs:element>
+                     <xs:element name="position" type='position_coordinate' minOccurs="0" maxOccurs="unbounded"/>
+                   </xs:sequence>
+                 </xs:complexType>
+               </xs:element>
+             <xs:element name="head">
+	        <xs:complexType>
+	          <xs:sequence>
+              <xs:element name="file_name"     type="xs:string">  </xs:element>
+              <xs:element name="file_md5sum"   type="xs:string">  </xs:element>
+              <xs:element name="file_format"   type="xs:string">  </xs:element>
+              <xs:element name="site_id"       type="xs:string">  </xs:element>
+              <xs:element name="marker_name"   type="xs:string">  </xs:element>
+              <xs:element name="marker_numb"   type="xs:string">  </xs:element>
+              <xs:element name="receiver_type" type="xs:string">  </xs:element>  
+              <xs:element name="receiver_numb" type="xs:string">  </xs:element>
+              <xs:element name="receiver_vers" type="xs:string"   minOccurs="0"> </xs:element>
+              <xs:element name="antenna_type"  type="xs:string">  </xs:element>
+              <xs:element name="antenna_dome"  type="xs:string">  </xs:element>
+              <xs:element name="antenna_numb"  type="xs:string">  </xs:element>
+              <xs:element name="software"      type="xs:string">  </xs:element>
+              <xs:element name="data_int"      type="xs:decimal"> </xs:element>
+              <xs:element name="position"      type='position_coordinate'/>
+              <xs:element name="system"        maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:complexContent>
+  	  	          <xs:extension base="system_base">
+                    <xs:sequence>
+                      <xs:element name="obs" maxOccurs="unbounded">
+                         <xs:complexType>
+                           <xs:attributeGroup ref="obs_attr"/>
+                         </xs:complexType>
+                       </xs:element>
+                     </xs:sequence>
+                   </xs:extension>
+                 </xs:complexContent>
+               </xs:complexType>
+             </xs:element>
+	        </xs:sequence>
+	        <xs:attribute name="file_numb" type="xs:int">   </xs:attribute>
+	      </xs:complexType>
+  	    </xs:element>
+          </xs:sequence>
+          <xs:attribute name="schemaVersion" type="xs:string"> </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
